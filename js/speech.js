@@ -244,6 +244,12 @@ const SpeechModule = {
      * @param {string} apiKey
      * @returns {Promise<void>}
      */
+    /**
+     * Speak using Google Cloud TTS API
+     * @param {string} text
+     * @param {string} apiKey
+     * @returns {Promise<void>}
+     */
     async speakWithGeminiTTS(text, apiKey) {
         this.isSpeaking = true;
 
@@ -253,28 +259,23 @@ const SpeechModule = {
             this.currentAudio = null;
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1alpha/models/${this.GEMINI_TTS_MODEL}:generateContent?key=${apiKey}`;
-
-        // Add expressive instruction for emotional voice
-        const expressiveText = `Speak this with a warm, friendly, and expressive voice: "${text}"`;
+        // Use Google Cloud TTS API
+        const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
 
         const requestBody = {
-            contents: [{
-                parts: [{ text: expressiveText }]
-            }],
-            generationConfig: {
-                responseModalities: ["AUDIO"],
-                speechConfig: {
-                    voiceConfig: {
-                        prebuiltVoiceConfig: {
-                            voiceName: this.GEMINI_VOICE
-                        }
-                    }
-                }
+            input: { text: text },
+            voice: {
+                languageCode: 'en-US',
+                name: 'en-US-Neural2-F' // High quality Neural voice
+            },
+            audioConfig: {
+                audioEncoding: 'MP3',
+                pitch: 0,
+                speakingRate: 1.0
             }
         };
 
-        console.log('🎤 Calling Gemini TTS...');
+        console.log('🎤 Calling Google Cloud TTS...');
 
         const response = await fetch(url, {
             method: 'POST',
@@ -283,7 +284,7 @@ const SpeechModule = {
         });
 
         if (!response.ok) {
-            let errorMsg = `Gemini TTS API error: ${response.status}`;
+            let errorMsg = `Google TTS API error: ${response.status}`;
             try {
                 const errorText = await response.text();
                 errorMsg += ` - ${errorText}`;
@@ -295,17 +296,14 @@ const SpeechModule = {
 
         const data = await response.json();
 
-        if (!data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data) {
-            throw new Error('No audio data in response');
+        if (!data.audioContent) {
+            throw new Error('No audio content in response');
         }
 
-        const audioData = data.candidates[0].content.parts[0].inlineData.data;
-        const mimeType = data.candidates[0].content.parts[0].inlineData.mimeType || 'audio/L16;rate=24000';
-
-        console.log('✅ Gemini TTS audio received, playing...');
+        console.log('✅ Google TTS audio received, playing...');
 
         // Convert and play the audio
-        await this.playGeminiAudio(audioData, mimeType);
+        await this.playGeminiAudio(data.audioContent, 'audio/mp3');
 
         this.isSpeaking = false;
     },
