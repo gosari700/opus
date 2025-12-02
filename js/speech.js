@@ -95,11 +95,13 @@ const SpeechModule = {
         };
 
         this.recognition.onresult = (event) => {
+            console.log('🎤 onresult 이벤트 발생, results.length:', event.results.length);
             let finalTranscript = '';
             let interimTranscript = '';
 
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript;
+                console.log(`- Result[${i}]: "${transcript}", isFinal:`, event.results[i].isFinal);
                 if (event.results[i].isFinal) {
                     finalTranscript += transcript;
                 } else {
@@ -108,6 +110,7 @@ const SpeechModule = {
             }
 
             if (interimTranscript && this.onInterim) {
+                console.log('📝 임시 텍스트:', interimTranscript);
                 this.onInterim(interimTranscript);
             }
 
@@ -241,10 +244,8 @@ const SpeechModule = {
             try {
                 return await this.speakWithGeminiTTS(text, apiKey);
             } catch (error) {
-                console.log('Gemini TTS failed, falling back to browser TTS:', error);
-                // Show error to user to help debug
-                alert('Gemini TTS Failed: ' + error.message + '\n\nUsing system voice instead.');
-                UI.updateStatus(`⚠️ Gemini Voice Error: ${error.message}. Using system voice.`);
+                console.log('⚠️ Gemini TTS failed, falling back to browser TTS:', error.message);
+                // Silently fall back to browser TTS without showing error to user
             }
         }
 
