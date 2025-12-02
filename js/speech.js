@@ -144,32 +144,46 @@ const SpeechModule = {
      * Start listening
      */
     startListening() {
+        console.log('🎤 startListening 호출됨');
+        console.log('- recognition:', !!this.recognition);
+        console.log('- isMicEnabled:', this.isMicEnabled);
+        console.log('- isListening:', this.isListening);
+        console.log('- mediaStream:', !!this.mediaStream);
+
         if (!this.recognition) {
-            if (!this.initRecognition()) return;
+            console.log('🔧 Recognition 초기화 중...');
+            if (!this.initRecognition()) {
+                console.error('❌ Recognition 초기화 실패');
+                return;
+            }
         }
 
         if (!this.isMicEnabled) {
-            console.log('마이크가 비활성화됨');
+            console.log('❌ 마이크가 비활성화됨');
             return;
         }
 
         if (this.isListening) {
-            console.log('이미 듣는 중...');
+            console.log('⚠️ 이미 듣는 중...');
             return;
         }
 
         try {
+            console.log('🚀 recognition.start() 호출 시도...');
             this.recognition.start();
-            console.log('🎤 recognition.start() 호출됨');
-        } catch (e) {
-            console.log('⚠️ 시작 실패, 재초기화:', e.message);
+            console.log('✅ recognition.start() 호출 성공');
+        } catch(e) {
+            console.error('❌ 시작 실패:', e.name, e.message);
             if (e.name === 'InvalidStateError') {
+                console.log('🔄 재초기화 시도...');
                 this.initRecognition();
                 setTimeout(() => {
                     try {
+                        console.log('🔄 재시도 중...');
                         this.recognition.start();
-                    } catch (e2) {
-                        console.error('재시도 실패:', e2);
+                        console.log('✅ 재시도 성공');
+                    } catch(e2) {
+                        console.error('❌ 재시도 실패:', e2);
                     }
                 }, 100);
             }
