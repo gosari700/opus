@@ -1,0 +1,21 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "liveServer.settings.port": 8000,
+        "liveServer.settings.root": "/",
+        "editor.tabSize": 4,
+        "editor.formatOnSave": true,
+        "files.encoding": "utf8"
+    },
+    "extensions": {
+        "recommendations": [
+            "ritwickdey.liveserver",
+            "esbenp.prettier-vscode",
+            "dbaeumer.vscode-eslint"
+        ]
+    }
+}
