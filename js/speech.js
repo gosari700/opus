@@ -253,7 +253,7 @@ const SpeechModule = {
             this.currentAudio = null;
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.GEMINI_TTS_MODEL}:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1alpha/models/${this.GEMINI_TTS_MODEL}:generateContent?key=${apiKey}`;
 
         // Add expressive instruction for emotional voice
         const expressiveText = `Speak this with a warm, friendly, and expressive voice: "${text}"`;
@@ -283,7 +283,18 @@ const SpeechModule = {
         });
 
         if (!response.ok) {
-            throw new Error(`Gemini TTS API error: ${response.status}`);
+            let errorMsg = `Gemini TTS API error: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                if (errorData.error && errorData.error.message) {
+                    errorMsg += ` - ${errorData.error.message}`;
+                } else {
+                    errorMsg += ` - ${JSON.stringify(errorData)}`;
+                }
+            } catch (e) {
+                // Ignore parsing error
+            }
+            throw new Error(errorMsg);
         }
 
         const data = await response.json();
