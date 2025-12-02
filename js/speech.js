@@ -285,14 +285,10 @@ const SpeechModule = {
         if (!response.ok) {
             let errorMsg = `Gemini TTS API error: ${response.status}`;
             try {
-                const errorData = await response.json();
-                if (errorData.error && errorData.error.message) {
-                    errorMsg += ` - ${errorData.error.message}`;
-                } else {
-                    errorMsg += ` - ${JSON.stringify(errorData)}`;
-                }
+                const errorText = await response.text();
+                errorMsg += ` - ${errorText}`;
             } catch (e) {
-                // Ignore parsing error
+                errorMsg += ' (Could not read error body)';
             }
             throw new Error(errorMsg);
         }
