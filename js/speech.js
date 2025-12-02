@@ -23,7 +23,7 @@ const SpeechModule = {
 
     // Gemini TTS Settings
     GEMINI_TTS_MODEL: 'gemini-2.0-flash-exp',
-    GEMINI_VOICE: 'Kore', // Female voice options: Kore, Aoede, Leda, Zephyr
+    GEMINI_VOICE: 'Aoede', // Female voice options: Kore, Aoede, Leda, Zephyr
 
     /**
      * Initialize audio context for Gemini TTS
@@ -228,6 +228,8 @@ const SpeechModule = {
                 return await this.speakWithGeminiTTS(text, apiKey);
             } catch (error) {
                 console.log('Gemini TTS failed, falling back to browser TTS:', error);
+                // Show error to user to help debug
+                UI.updateStatus(`⚠️ Gemini Voice Error: ${error.message}. Using system voice.`);
             }
         }
 
@@ -253,7 +255,7 @@ const SpeechModule = {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.GEMINI_TTS_MODEL}:generateContent?key=${apiKey}`;
 
         // Add expressive instruction for emotional voice
-        const expressiveText = `Speak this with a warm, friendly, and highly expressive female voice. Use natural intonation, pauses, and feeling, as if you are a real person having a caring conversation: "${text}"`;
+        const expressiveText = `Speak this with a warm, friendly, and expressive voice: "${text}"`;
 
         const requestBody = {
             contents: [{
