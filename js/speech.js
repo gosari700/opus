@@ -229,6 +229,7 @@ const SpeechModule = {
             } catch (error) {
                 console.log('Gemini TTS failed, falling back to browser TTS:', error);
                 // Show error to user to help debug
+                alert('Gemini TTS Failed: ' + error.message + '\n\nUsing system voice instead.');
                 UI.updateStatus(`⚠️ Gemini Voice Error: ${error.message}. Using system voice.`);
             }
         }
