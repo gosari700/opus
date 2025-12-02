@@ -89,13 +89,15 @@ const App = {
      */
     async handleUserSpeech(text) {
         if (!text.trim() || this.isProcessing) return;
-        
+
+        console.log('🗣️ User said:', text);
+
         this.isProcessing = true;
         SpeechModule.stopListening();
         UI.updateMicButton(false);
-        UI.updateStatus('⏳ AI가 생각 중...');
+        UI.updateStatus(`⏳ AI가 생각 중... (You said: "${text}")`);
         UI.hideError();
-        
+
         // Add user message
         this.addMessage('user', text);
         

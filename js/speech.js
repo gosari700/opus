@@ -44,9 +44,18 @@ const SpeechModule = {
      */
     async requestMicPermission() {
         try {
+            console.log('🎤 마이크 권한 요청 시작...');
+            console.log('- HTTPS:', window.location.protocol === 'https:');
+            console.log('- getUserMedia available:', !!navigator.mediaDevices?.getUserMedia);
+
             if (this.mediaStream) {
                 console.log('✅ 이미 마이크 권한 있음');
                 return true;
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.error('❌ getUserMedia not supported');
+                throw new Error('이 브라우저는 마이크를 지원하지 않습니다');
             }
 
             this.mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -58,9 +67,10 @@ const SpeechModule = {
             });
 
             console.log('✅ 마이크 권한 획득 성공');
+            console.log('- Audio tracks:', this.mediaStream.getAudioTracks().length);
             return true;
         } catch (err) {
-            console.error('❌ 마이크 권한 거부:', err);
+            console.error('❌ 마이크 권한 거부:', err.name, err.message);
             return false;
         }
     },
@@ -84,9 +94,16 @@ const SpeechModule = {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         this.recognition = new SpeechRecognition();
         this.recognition.lang = CONFIG.SPEECH_LANG;
-        this.recognition.continuous = false;
+        this.recognition.continuous = false; // Auto-stop after silence
         this.recognition.interimResults = true;
         this.recognition.maxAlternatives = 1;
+
+        console.log('🔧 Recognition settings:');
+        console.log('- Browser:', navigator.userAgent);
+        console.log('- HTTPS:', window.location.protocol === 'https:');
+        console.log('- lang:', this.recognition.lang);
+        console.log('- continuous:', this.recognition.continuous);
+        console.log('- interimResults:', this.recognition.interimResults);
 
         this.recognition.onstart = () => {
             console.log('🎤 음성 인식 시작됨');
@@ -121,7 +138,10 @@ const SpeechModule = {
         };
 
         this.recognition.onerror = (event) => {
-            console.log('❌ 음성 인식 오류:', event.error);
+            console.error('❌ 음성 인식 오류:', event.error);
+            console.error('- Error details:', event);
+            console.error('- isListening before error:', this.isListening);
+            console.error('- mediaStream:', !!this.mediaStream);
             this.isListening = false;
 
             if (this.onError) {
