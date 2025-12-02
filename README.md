@@ -25,7 +25,7 @@ english-freetalk-project/
 │   └── app.js          # 메인 앱 로직
 ├── start-server.bat    # Windows 서버 실행 스크립트
 ├── start-server.ps1    # PowerShell 서버 실행 스크립트
-└── README.md           # 이 파일
+└── README.md           # 이 파일그리고
 ```
 
 ## 시작하기
